@@ -1,0 +1,259 @@
+<header>
+  
+ <link rel="stylesheet" href="/style.css">
+ 
+<body>
+   
+<h id="intro"></h>
+	<button id="signup" class="button"></button>	
+	<button id="login" class="button"></button>
+
+<script src="main.js"></script>
+	
+<script>
+	
+	let currentView = "signup-or-login"
+
+let signupOrLoginView = () => {
+    //  You will need to modify this function
+    
+    let container = document.createElement("div")
+    container.setAttribute("class", "enter")
+
+    let header = document.getElementById("intro")
+    header.innerText = "Welcome to Letz ch@t ;)"
+    header.setAttribute("id", "intro")
+    
+    let loginButton = document.getElementById("signup")
+    loginButton.innerText = "Login"
+
+    let signupButton = document.getElementById("login")
+    signupButton.innerText = "Signup"
+
+    signupButton.addEventListener("click", () => {
+        currentView = "signup"
+        render()
+    })
+
+    loginButton.addEventListener("click", () => {
+        currentView = "login"
+        render()
+    })
+
+
+    container.appendChild(header)
+    container.appendChild(loginButton)
+    container.appendChild(signupButton)
+   
+
+    return container
+}
+
+//signupView
+let signupView = () => {
+    //  You will need to modify this function
+
+    let container = document.createElement("form")
+     container.setAttribute("id", "register")
+//Signup title
+    let titleReg = document.createElement("h")
+    titleReg.setAttribute("id", "assign")
+    titleReg.innerText = "Sign up"
+
+    let divOne = document.createElement("div")
+    divOne.setAttribute("class", "centered-input")
+
+// label for Username
+    let user = document.createElement("label")
+    user.innerText = "Username "
+    user.setAttribute("class", "labelStyle")
+
+// Input field for username
+    let usernameInput = document.createElement("input")
+    usernameInput.setAttribute("class", "inputStyle")
+
+    divOne.appendChild(user)
+    divOne.appendChild(usernameInput)
+
+    let divTwo = document.createElement("div")
+    divTwo.setAttribute("class", "centered-input")
+
+// label for Password
+    let pass = document.createElement("label")
+    pass.innerText = "Password "
+    pass.setAttribute("class", "labelStyle")
+// Input field for Password
+    let passwordInput = document.createElement("input")
+    passwordInput.setAttribute("class", "inputStyle")
+divTwo.appendChild(pass)
+divTwo.appendChild(passwordInput)
+
+let divThree = document.createElement("div")
+divThree.setAttribute("class", "centered-input")
+
+//Clear button
+let cancelButton = document.createElement("button")
+cancelButton.setAttribute("id", "cancButton")
+cancelButton.setAttribute("class", "regButtons")
+cancelButton.innerText = "Cancel"
+
+
+//Submit button
+    let submitButton = document.createElement("button")
+    submitButton.setAttribute("id", "subButton")
+    submitButton.setAttribute("class", "regButtons")
+    submitButton.innerText = "Submit"
+    submitButton.addEventListener('click', () => {
+        let username = usernameInput.value
+        let password = passwordInput.value
+        // JSON.stringify converts a JavaScript value to a string
+        let bodyToBeSent = JSON.stringify({ username, password })
+        // fetch is covered in depth in the slides
+        fetch("https://marshy-caterwauling-dugout.glitch.me/signup", { method: "POST", body: bodyToBeSent })
+            .then(response => {
+                return response.text()
+            })
+            .then(body => {
+                // putting a debugger statement here might be useful
+                console.log("login received " + body)
+                // JSON.parse converts a string to a JavaScript value
+                // For this particular server, you always need to call it.
+                let parsed = JSON.parse(body)
+                if (!parsed.success) {
+                    alert("signup not successful")
+                } else {
+                    alert("signup successful")
+                }
+            })
+    })
+
+    divThree.appendChild(cancelButton)
+    divThree.appendChild(submitButton)
+
+container.appendChild(titleReg)
+container.appendChild(divOne)
+container.appendChild(divTwo)
+container.appendChild(divThree)
+ 
+return container
+
+}
+
+//loginView
+let loginView = () => {
+    let container = document.createElement("form")
+     container.setAttribute("id", "login")
+//Signup title
+    let titleReg = document.createElement("h")
+    titleReg.setAttribute("id", "assign")
+    titleReg.innerText = "Login"
+
+    let divOne = document.createElement("div")
+    divOne.setAttribute("class", "centered-input")
+
+// label for Username
+    let user = document.createElement("label")
+    user.innerText = "Username "
+    user.setAttribute("class", "labelStyle")
+// Input field for username
+    let usernameInput = document.createElement("input")
+    usernameInput.setAttribute("class", "inputStyle")
+
+    divOne.appendChild(user)
+    divOne.appendChild(usernameInput)
+
+    let divTwo = document.createElement("div")
+    divTwo.setAttribute("class", "centered-input")
+
+// label for Password
+    let pass = document.createElement("label")
+    pass.innerText = "Password "
+    pass.setAttribute("class", "labelStyle")
+// Input field for Password
+    let passwordInput = document.createElement("input")
+    passwordInput.setAttribute("class", "inputStyle")
+divTwo.appendChild(pass)
+divTwo.appendChild(passwordInput)
+
+let divThree = document.createElement("div")
+divThree.setAttribute("class", "centered-input")
+
+//Clear button
+let cancelButton = document.createElement("button")
+cancelButton.setAttribute("id", "cancButton")
+cancelButton.setAttribute("class", "regButtons")
+cancelButton.innerText = "Cancel"
+
+
+//Submit button
+    let submitButton = document.createElement("button")
+    submitButton.setAttribute("id", "subButton")
+    submitButton.setAttribute("class", "regButtons")
+    submitButton.innerText = "Submit"
+    submitButton.addEventListener('click', () => {
+        let username = usernameInput.value
+        let password = passwordInput.value
+        // JSON.stringify converts a JavaScript value to a string
+        let bodyToBeSent = JSON.stringify({ username, password })
+        // fetch is covered in depth in the slides
+        fetch("https://marshy-caterwauling-dugout.glitch.me/signup", { method: "POST", body: bodyToBeSent })
+            .then(response => {
+                return response.text()
+            })
+            .then(body => {
+                // putting a debugger statement here might be useful
+                console.log("login received " + body)
+                // JSON.parse converts a string to a JavaScript value
+                // For this particular server, you always need to call it.
+                let parsed = JSON.parse(body)
+                if (!parsed.success) {
+                    alert("signup not successful")
+                } else {
+                    alert("signup successful")
+                }
+            })
+    })
+
+    divThree.appendChild(cancelButton)
+    divThree.appendChild(submitButton)
+
+container.appendChild(titleReg)
+container.appendChild(divOne)
+container.appendChild(divTwo)
+container.appendChild(divThree)
+
+
+return container
+
+} 
+
+// Rerenders the page
+let render = () => {
+    // Will contain a reference 
+    let toRender = undefined
+    // For debugging purposes
+    console.log("rendering view", currentView)
+    if (currentView === "signup-or-login") {
+        toRender = signupOrLoginView()
+    } else if (currentView === "signup") {
+        toRender = signupView()
+//modified by me
+    } else if (currentView === "login"){
+        toRender = loginView()
+    } else {
+        // woops
+        alert("unhandled currentView " + currentView)
+    }
+
+    // Removes all children from the body
+    document.body.innerHTML = ""
+    document.body.appendChild(toRender)
+}
+
+// Initial render
+render() 
+	
+	</script>
+  
+</body> 
+</header>
