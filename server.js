@@ -29,13 +29,17 @@ let join_map = new Map();
 let banned_map = new Map();
 let msg_map = new Map();
 
-app.get("/", (req, res) => {
+/*app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
-});
-
+});*/
+// SOURCE TO SERVER TEST
 app.get("/sourcecode", (req, res) => {
 res.send(require('fs').readFileSync(__filename).toString())
 })
+//OPEN PORT
+app.listen(4000, () => {
+  console.log("server started");
+});
 
 //LOGIN endpont-----------------------------------------------
 app.post("/login", (req, res) => {
@@ -44,55 +48,47 @@ app.post("/login", (req, res) => {
   let actualPassword = parsed.password;
   let expectedPassword = passwords.get(username);
   let msg = undefined;
+  let token;
   if (!actualPassword || !username) {
     /*default cases*/
-    let msg;
     !actualPassword ? (msg = "password field missing"): (msg = "username field missing");
-    res.send(JSON.stringify({ success: false, reason: msg }));
-    return;
   }
-  if (!passwords.has(username)) msg = "User does not exist";
+  else if (!passwords.has(username)) msg = "User does not exist";
   else if (expectedPassword !== actualPassword) msg = "Invalid password";
   if (msg) {
     res.send(JSON.stringify({ success: false, reason: msg }));
-    return;
+  }else{
+    token = getToken();
+    tok_map.set(token, username);
+    res.send(JSON.stringify({ success: true, token: token }));
   }
-  let token = getToken();
-  tok_map.set(token, username);
-  res.send(JSON.stringify({ success: true, token: token }));
+  
 });
-
 //SIGNUP endpont--------------------------------------------
 app.post("/signup", (req, res) => {
   let parsed = JSON.parse(req.body);
   let username = parsed.username;
   let password = parsed.password;
-  let msg;
+  let msg = undefined;
   if (!password || !username) {
     /*default cases*/
-    let msg;
     !password ? (msg = "password field missing") : (msg = "username field missing");
-    res.send(JSON.stringify({ success: false, reason: msg }));
-    return;
+  }else if (passwords.has(username)) {
+      msg =  "Username exists" ;
   }
-
-  if (passwords.has(username)) {
-    res.send(JSON.stringify({ success: false, reason: "Username exists" }));
-    return; 
+  if (msg) res.send(JSON.stringify({ success: false, reason: msg }));
+  else {
+    passwords.set(username, password);
+    res.send(JSON.stringify({ success: true }));
   }
-  passwords.set(username, password);
-  res.send(JSON.stringify({ success: true }));
 });
-
 //CREATE-CHANNEL endpoint---------------------------------------
 app.post("/create-channel", (req, res) => {
   let parsed = JSON.parse(req.body);
   let channel_name = parsed.channelName;
   let token = req.headers.token;
-
   let err_msg = undefined;
   
-
   if (!token) err_msg = "token field missing";
   else if (!channel_name) err_msg = "channelName field missing";
   else if (tok_map.has(token)) {
@@ -107,23 +103,12 @@ app.post("/create-channel", (req, res) => {
   res.send(JSON.stringify({ success: false, reason: err_msg }));
 
 });
-
-app.listen(4000, () => {
-  console.log("server started");
-});
-
-app.get("/test", (req, res) => {
-  res.send("test");
-});
-
 //JOIN-CHANNEL endpoint--------------------------------------------
 app.post("/join-channel", (req, res) => {
   let parsed = JSON.parse(req.body);
   let channel_name = parsed.channelName;
   let token = req.headers.token;
   let error_join = undefined;
-  
-  
   
   if (!token) {
     error_join = "token field missing";
@@ -146,7 +131,6 @@ app.post("/join-channel", (req, res) => {
     res.send(JSON.stringify({ success: false, reason: error_join }));
   }
 });
-
 //BAN endpoint--------------------------------------------
 app.post("/ban", (req, res) => {
   let parsed = JSON.parse(req.body);
@@ -184,7 +168,6 @@ app.post("/ban", (req, res) => {
     res.send(JSON.stringify({ success: false, reason: error }));
   }
 });
-
 //LEAVE-CHANNEL endpoint--------------------------------------------
 app.post("/leave-channel", (req, res) => {
   
@@ -215,11 +198,11 @@ app.post("/leave-channel", (req, res) => {
 });
 //JOINED endpoint--------------------------------------------
 app.get("/joined", (req, res) => {
-  console.log("joined started");
+  //console.log("joined started");
   let token = req.headers.token;
   let channel_name = req.query.channelName;
   let joined = [];
- 
+  let user;
   
   let error_join = undefined;
   if (!token) {
@@ -234,7 +217,7 @@ app.get("/joined", (req, res) => {
  
   if (!error_join) {
     for (const [key, value] of join_map.entries()) {
-        let user;
+        user = undefined;
         if ( value==channel_name ) 
           user = tok_map.get(key)
         else 
@@ -255,7 +238,7 @@ app.post("/delete", (req, res) => {
   let token = req.headers.token;
   let channel_name = parsed.channelName;
   let joined = [];
-  console.log(channel_name);
+  //console.log(channel_name);
   
   let error = undefined;
     if (!token) {
@@ -274,7 +257,6 @@ app.post("/delete", (req, res) => {
     res.send(JSON.stringify({ success: false, reason: error}));
   }
 });
-
 //MESSAGE endpoint--------------------------------------------
 app.post("/message", (req, res) => {
   let parsed = JSON.parse(req.body);
@@ -331,8 +313,9 @@ app.get("/messages", (req, res) => {
     
     if (!error)
     {
-      if ( msg_map.get(channel_name) ) msg = msg_map.get(channel_name);
-      console.log(msg);
+      msg = msg_map.get(channel_name);
+      if (!msg) msg = [];
+      //console.log(msg);
       res.send(JSON.stringify({ success: true, messages: msg }))
     }else{
       res.send(JSON.stringify({ success: false, reason: error}));
@@ -378,7 +361,7 @@ app.post("/kick", (req, res) => {
   
 });
 //helpers
-app.get("/tokens", (req, res) => {
+/*app.get("/tokens", (req, res) => {
   console.log("I am here");
   for (const [key, value] of tok_map.entries()) {
     console.log(key, value);
@@ -391,4 +374,6 @@ app.post("/setToken", (req, res) => {
   tok_map.set(token)
   res.send("good");
 });
-
+app.get("/test", (req, res) => {
+  res.send("test");
+});*/
