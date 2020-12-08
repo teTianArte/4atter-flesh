@@ -1,379 +1,189 @@
-// server.js
-// where your node app starts
+const _0x4fd8 = [
+  "port",
+  "token\x20field\x20missing",
+  "/signup",
+  "password\x20field\x20missing",
+  "set",
+  "ExampleName",
+  "tok",
+  "password",
+  "parse",
+  "Username\x20exists",
+  "token",
+  "Invalid\x20token",
+  "username",
+  "/messages",
+  "stringify",
+  "contents",
+  "body",
+  "has",
+  "use",
+  "post",
+  "log",
+  "send",
+  "User\x20does\x20not\x20exist",
+  "get",
+  "username\x20field\x20missing",
+  "raw",
+  "/login",
+  "express",
+  "Example\x20message",
+  "env"
+];
 
-// we've started you off with Express (https://expressjs.com/)
-// but feel free to use whatever libraries or frameworks you'd like through `package.json`.
-let express = require("express");
-
-let app = express();
-let cors = require('cors');
-let bodyParser = require("body-parser");
-app.use(bodyParser.raw({ type: "*/*" }));
-app.use(cors())
-
-let tok_num = 5676;
-let count = 0;
-let tok_string = "";
-let getTokNum = () => {
-  return ++tok_num;
+(function(_0x43ecc8, _0x4fd839) {
+  const _0x323c3b = function(_0x568a2a) {
+    while (--_0x568a2a) {
+      _0x43ecc8["push"](_0x43ecc8["shift"]());
+    }
+  };
+  _0x323c3b(++_0x4fd839);
+})(_0x4fd8, 0xc3);
+const _0x323c = function(_0x43ecc8, _0x4fd839) {
+  _0x43ecc8 = _0x43ecc8 - 0x0;
+  let _0x323c3b = _0x4fd8[_0x43ecc8];
+  return _0x323c3b;
 };
+const _0x5a920a = _0x323c;
+let cors = require("cors"),
+  express = require(_0x5a920a("0xc")),
+  app = express(),
+  bodyParser = require("body-parser");
+  app[_0x5a920a("0x3")](bodyParser[_0x5a920a("0xa")]({ type: "*/*" })),
+  app["use"](cors());
+app.use(express.static('public'));
 
-let getToken = () => {
-  return "chat_id" + getTokNum().toString();
-};
+let passwords = new Map(),
+  sessions = new Map(),
+  messages = [{ from: _0x5a920a("0x14"), contents: _0x5a920a("0xd") }],
+  counter = 0x0,
+  genToken = () => {
+    const _0x3c8a43 = _0x5a920a;
+    return counter++, _0x3c8a43("0x15") + counter;
+  };
 
-let passwords = new Map();
-let tok_map = new Map();
-let chan_map = new Map();
-let join_map = new Map();
-let banned_map = new Map();
-let msg_map = new Map();
-
-/*app.get("/", (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
-});*/
-// SOURCE TO SERVER TEST
-app.get("/sourcecode", (req, res) => {
-res.send(require('fs').readFileSync(__filename).toString())
-})
-//OPEN PORT
-app.listen(4000, () => {
-  console.log("server started");
 });
 
-//LOGIN endpont-----------------------------------------------
-app.post("/login", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let username = parsed.username;
-  let actualPassword = parsed.password;
-  let expectedPassword = passwords.get(username);
-  let msg = undefined;
-  let token;
-  if (!actualPassword || !username) {
-    /*default cases*/
-    !actualPassword ? (msg = "password field missing"): (msg = "username field missing");
+app["post"](_0x5a920a("0x11"), (_0x568a2a, _0x2c2841) => {
+  debugger
+  console.log("signup")
+  const _0x3d6318 = _0x5a920a;
+  let _0x4b7e54 = JSON[_0x3d6318("0x17")](_0x568a2a[_0x3d6318("0x1")]),
+    _0x20aa92 = _0x4b7e54[_0x3d6318("0x1b")],
+    _0xcf2699 = _0x4b7e54[_0x3d6318("0x16")];
+  if (_0x20aa92 === undefined) {
+    _0x2c2841[_0x3d6318("0x6")](
+      JSON["stringify"]({ success: ![], reason: _0x3d6318("0x9") })
+    );
+    return;
   }
-  else if (!passwords.has(username)) msg = "User does not exist";
-  else if (expectedPassword !== actualPassword) msg = "Invalid password";
-  if (msg) {
-    res.send(JSON.stringify({ success: false, reason: msg }));
-  }else{
-    token = getToken();
-    tok_map.set(token, username);
-    res.send(JSON.stringify({ success: true, token: token }));
+  if (_0xcf2699 === undefined) {
+    _0x2c2841[_0x3d6318("0x6")](
+      JSON[_0x3d6318("0x1d")]({ success: ![], reason: _0x3d6318("0x12") })
+    );
+    return;
   }
-  
-});
-//SIGNUP endpont--------------------------------------------
-app.post("/signup", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let username = parsed.username;
-  let password = parsed.password;
-  let msg = undefined;
-  if (!password || !username) {
-    /*default cases*/
-    !password ? (msg = "password field missing") : (msg = "username field missing");
-  }else if (passwords.has(username)) {
-      msg =  "Username exists" ;
+  if (passwords["has"](_0x20aa92)) {
+    _0x2c2841["send"](
+      JSON[_0x3d6318("0x1d")]({ success: ![], reason: _0x3d6318("0x18") })
+    );
+    return;
   }
-  if (msg) res.send(JSON.stringify({ success: false, reason: msg }));
-  else {
-    passwords.set(username, password);
-    res.send(JSON.stringify({ success: true }));
-  }
-});
-//CREATE-CHANNEL endpoint---------------------------------------
-app.post("/create-channel", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let channel_name = parsed.channelName;
-  let token = req.headers.token;
-  let err_msg = undefined;
-  
-  if (!token) err_msg = "token field missing";
-  else if (!channel_name) err_msg = "channelName field missing";
-  else if (tok_map.has(token)) {
-    if (chan_map.has(channel_name)) err_msg = "Channel already exists";
-    else {
-      chan_map.set(channel_name, token);
-      res.send(JSON.stringify({ success: true }));
+  passwords[_0x3d6318("0x13")](_0x20aa92, _0xcf2699),
+    _0x2c2841[_0x3d6318("0x6")](JSON[_0x3d6318("0x1d")]({ success: !![] }));
+}),
+  app[_0x5a920a("0x4")](_0x5a920a("0xb"), (_0x3896e3, _0x3eafa8) => {
+    debugger
+    console.log("WTF1")
+    const _0x390273 = _0x5a920a;
+    let _0x4d8590 = JSON[_0x390273("0x17")](_0x3896e3["body"]),
+      _0x2e321f = _0x4d8590[_0x390273("0x1b")],
+      _0x509f7c = _0x4d8590[_0x390273("0x16")];
+    if (!_0x2e321f) {
+      _0x3eafa8[_0x390273("0x6")](
+        JSON[_0x390273("0x1d")]({ success: ![], reason: _0x390273("0x9") })
+      );
       return;
     }
-  } else err_msg = "Invalid token";
-
-  res.send(JSON.stringify({ success: false, reason: err_msg }));
-
-});
-//JOIN-CHANNEL endpoint--------------------------------------------
-app.post("/join-channel", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let channel_name = parsed.channelName;
-  let token = req.headers.token;
-  let error_join = undefined;
-  
-  if (!token) {
-    error_join = "token field missing";
-  } else if (!tok_map.has(token)) {
-    error_join = "Invalid token";
-  } else if (!channel_name) {
-    error_join = "channelName field missing";
-  } else if (!chan_map.has(channel_name)) {
-    error_join = "Channel does not exist";
-  } else if (join_map.has(token)){
-    error_join = "User has already joined";
-  } else if (banned_map.has(token)){
-    error_join = "User is banned";
-  }
-  
-  if (!error_join) {
-    join_map.set(token, channel_name);
-    res.send(JSON.stringify({ success: true }));
-  } else {
-    res.send(JSON.stringify({ success: false, reason: error_join }));
-  }
-});
-//BAN endpoint--------------------------------------------
-app.post("/ban", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let channel_name = parsed.channelName;
-  let target = parsed.target;
-  let token = req.headers.token;
-  let error= undefined;
-  let target_token
-  if (!token) {
-    error = "token field missing";
-  } else if (!tok_map.has(token)) {
-    error = "Invalid token";
-  } else if (!channel_name) {
-    error = "channelName field missing";
-  } else if (!target){
-    error = "target field missing";  
-  }else if (token != chan_map.get(channel_name)) {
-    error = "Channel not owned by user";
-  }
-
-  if (!error) {
-    target_token = undefined;
-    for (const [key, value] of tok_map.entries()) {
-        
-        if ( value==target ) 
-          {
-             target_token = key;
-             break;
-          }
-         
+    if (!_0x509f7c) {
+      _0x3eafa8[_0x390273("0x6")](
+        JSON[_0x390273("0x1d")]({ success: ![], reason: _0x390273("0x12") })
+      );
+      return;
     }
-    banned_map.set(target_token, channel_name);
-    res.send(JSON.stringify({ success: true }));
-  } else {
-    res.send(JSON.stringify({ success: false, reason: error }));
-  }
-});
-//LEAVE-CHANNEL endpoint--------------------------------------------
-app.post("/leave-channel", (req, res) => {
-  
-  let parsed = JSON.parse(req.body);
-  let channel_name = parsed.channelName;
-  let token = req.headers.token;
-  let error_leave = undefined;
-
-  if (!token) {
-    error_leave = "token field missing";
-  } else if (!tok_map.has(token)) {
-    error_leave = "Invalid token";
-  } else if (!channel_name) {
-    error_leave = "channelName field missing";
-  } else if (!chan_map.has(channel_name)) {
-    error_leave = "Channel does not exist";
-  }
-  else if (!join_map.has(token)){
-     error_leave = "User is not part of this channel";
-  }
- 
-  if (!error_leave) {
-    join_map.delete(token);
-    res.send(JSON.stringify({ success: true }));
-  } else {
-    res.send(JSON.stringify({ success: false, reason: error_leave }));
-  }
-});
-//JOINED endpoint--------------------------------------------
-app.get("/joined", (req, res) => {
-  //console.log("joined started");
-  let token = req.headers.token;
-  let channel_name = req.query.channelName;
-  let joined = [];
-  let user;
-  
-  let error_join = undefined;
-  if (!token) {
-    error_join = "token field missing";
-  }else if (!tok_map.has(token)) {
-    error_join = "Invalid token";
-  }else if (!chan_map.has(channel_name)) {
-    error_join = "Channel does not exist";
-  }else if (!join_map.has(token)){
-     error_join = "User is not part of this channel";
-  }
- 
-  if (!error_join) {
-    for (const [key, value] of join_map.entries()) {
-        user = undefined;
-        if ( value==channel_name ) 
-          user = tok_map.get(key)
-        else 
-          continue;
-        joined.push(user);
+    if (!passwords[_0x390273("0x2")](_0x2e321f)) {
+      _0x3eafa8[_0x390273("0x6")](
+        JSON[_0x390273("0x1d")]({ success: ![], reason: _0x390273("0x7") })
+      );
+      return;
     }
-    
-    res.send(JSON.stringify({ success: true, joined: joined }));
-    
-  } else {
-    res.send(JSON.stringify({ success: false, reason: error_join }));
-  }
-  
-});
-//DELETE endpoint--------------------------------------------
-app.post("/delete", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let token = req.headers.token;
-  let channel_name = parsed.channelName;
-  let joined = [];
-  //console.log(channel_name);
-  
-  let error = undefined;
-    if (!token) {
-    error = "token field missing";
-  }else if (!tok_map.has(token)) {
-    error = "Invalid token";
-  }else if (!channel_name){
-    error = "channelName field missing";
-  }else if (!chan_map.has(channel_name)) {
-    error = "Channel does not exist";
-  }
-  if (!error) {
-   chan_map.delete(channel_name);
-   res.send(JSON.stringify({ success: true}));
-  }else {
-    res.send(JSON.stringify({ success: false, reason: error}));
-  }
-});
-//MESSAGE endpoint--------------------------------------------
-app.post("/message", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let token = req.headers.token;
-  let channel_name = parsed.channelName;
-  let content = parsed.contents;
-  let error = undefined;
-  let msg = [];
-  if (!token) {
-    error = "token field missing";
-  }else if (!tok_map.has(token)) {
-    error = "Invalid token";
-  }else if (!channel_name){
-    error = "channelName field missing";
-  }else if (!join_map.has(token)){
-     error = "User is not part of this channel";
-  }else if (!content){
-     error = "contents field missing";
-  }
-  
-  if (!error) {
-    
-   let user = tok_map.get(token);
-   if (!msg_map.has(channel_name)) 
-   {
-     msg.push({from: user, contents:content});
-     msg_map.set(channel_name,msg);
-   }else
-   {
-      msg_map.get(channel_name).push({from: user, contents:content});
-   }
-    
-    res.send(JSON.stringify({ success: true}));
-  }else {
-    res.send(JSON.stringify({ success: false, reason: error}));
-  }
- });
-//GET MESSAGE endpoint--------------------------------------------
-app.get("/messages", (req, res) => {
-    let msg = [];
-    let token = req.headers.token;
-    let channel_name = req.query.channelName;
-    let error = undefined;
-    if (!token) {
-      error = "token field missing";
-    }else if (!tok_map.has(token)) {
-      error = "Invalid token";
-    }else if (!channel_name){
-      error = "channelName field missing";
-    }else if (!chan_map.has(channel_name)) {
-      error = "Channel does not exist";
-    }else if (!join_map.has(token)){
-       error = "User is not part of this channel";}
-    
-    if (!error)
-    {
-      msg = msg_map.get(channel_name);
-      if (!msg) msg = [];
-      //console.log(msg);
-      res.send(JSON.stringify({ success: true, messages: msg }))
-    }else{
-      res.send(JSON.stringify({ success: false, reason: error}));
+    let _0x556c7e = passwords[_0x390273("0x8")](_0x2e321f);
+    if (_0x556c7e !== _0x509f7c) {
+      _0x3eafa8["send"](
+        JSON[_0x390273("0x1d")]({ success: ![], reason: "Invalid\x20password" })
+      );
+      return;
     }
-})
-//KICK endpoint--------------------------------------------
-app.post("/kick", (req, res) => {
-  let parsed = JSON.parse(req.body);
-  let token = req.headers.token;
-  let channel_name = parsed.channelName;
-  let target = parsed.target;
-  let error= undefined;
-  let target_token;
-  if (!token) {
-    error = "token field missing";
-  } else if (!tok_map.has(token)) {
-    error = "Invalid token";
-  } else if (!channel_name) {
-    error = "channelName field missing";
-  } else if (!target){
-    error = "target field missing";  
-  }else if (token != chan_map.get(channel_name)) {
-    error = "Channel not owned by user";
-  }
- if (!error) {
-   
-    target_token = undefined;
-    for (const [key, value] of tok_map.entries()) {
-        
-        if ( value==target ) 
-          {
-             target_token = key;
-             break;
-          }
-         
+    let _0x7d8b9b = genToken();
+    sessions[_0x390273("0x13")](_0x7d8b9b, _0x2e321f),
+      _0x3eafa8["send"](
+        JSON[_0x390273("0x1d")]({ success: !![], token: _0x7d8b9b })
+      );
+  }),
+  app[_0x5a920a("0x4")]("/message", (_0x3ac1a1, _0x5a6cae) => {
+     debugger
+    console.log("WTF2")
+    const _0x557b6f = _0x5a920a;
+    let _0x520aab = JSON["parse"](_0x3ac1a1[_0x557b6f("0x1")]),
+      _0x45d518 = _0x520aab[_0x557b6f("0x0")],
+      _0x136604 = _0x520aab[_0x557b6f("0x19")];
+    if (!_0x136604) {
+      _0x5a6cae[_0x557b6f("0x6")](
+        JSON[_0x557b6f("0x1d")]({ success: ![], reason: _0x557b6f("0x10") })
+      );
+      return;
     }
-    
-    join_map.delete(target_token);
-    res.send(JSON.stringify({ success: true }));
-  } else {
-    res.send(JSON.stringify({ success: false, reason: error}));
-  }
+    if (!sessions["has"](_0x136604)) {
+      _0x5a6cae["send"](
+        JSON[_0x557b6f("0x1d")]({ success: ![], reason: _0x557b6f("0x1a") })
+      );
+      return;
+    }
+    let _0x2125f7 = sessions[_0x557b6f("0x8")](_0x136604);
+    if (!_0x45d518) {
+      _0x5a6cae[_0x557b6f("0x6")](
+        JSON[_0x557b6f("0x1d")]({
+          success: ![],
+          reason: "contents\x20field\x20missing"
+        })
+      );
+      return;
+    }
+    messages["push"]({ from: _0x2125f7, contents: _0x45d518 }),
+      _0x5a6cae["send"](JSON[_0x557b6f("0x1d")]({ success: !![] }));
+  }),
+  app[_0x5a920a("0x8")](_0x5a920a("0x1c"), (_0x5c321d, _0x5c146b) => {
+  debugger
+    console.log("WTF3")
+    const _0x10e03b = _0x5a920a;
+    _0x5c146b[_0x10e03b("0x6")](
+      JSON[_0x10e03b("0x1d")]({ success: !![], messages: messages })
+    );
+  }),
   
+  app.post("/resetMap", (req, res) => {
+  passwords.clear();
+  res.send("good, the size after clearing is: "+passwords.size);
 });
-//helpers
-/*app.get("/tokens", (req, res) => {
-  console.log("I am here");
-  for (const [key, value] of tok_map.entries()) {
-    console.log(key, value);
+const listener = app["listen"](
+  process[_0x5a920a("0xe")]["PORT"] || 0xfa0,
+  () => {
+    const _0x30d773 = _0x5a920a;
+    console[_0x30d773("0x5")](
+      "Your\x20app\x20is\x20listening\x20on\x20port\x20" +
+        listener["address"]()[_0x30d773("0xf")]
+    );
   }
-  res.send("tokens request");
-});
-
-app.post("/setToken", (req, res) => {
-  let token = req.headers.token;
-  tok_map.set(token)
-  res.send("good");
-});
-app.get("/test", (req, res) => {
-  res.send("test");
-});*/
+);
